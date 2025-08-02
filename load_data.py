@@ -1,9 +1,12 @@
 import os
 import nrrd
 
+uni_pc_path = r"E:"
+laptop_path = r"Expansion:"
+
 class Data:
     def __init__(self):
-        self.data = {}
+        pass
 
     def load_models(self, root = r"E:\HonoursData\mySegmentations", models = ["L_6_inference", "L_8_inference", "M_6_inference", "M_8_inference", "DA5_segs"], display=False):
         """
@@ -14,36 +17,23 @@ class Data:
         image_results = {}
         
         for model in models:
+            
             model_path = os.path.join(root, model)
-            if os.path.exists(model_path):
-                for file in os.listdir(model_path):
-                    if file.endswith('.nrrd'):
-                        full_path = os.path.join(model_path, file)
-                        try:
-                            # Load the NRRD file data
-                            data, header = nrrd.read(full_path)
-                            
-                            # Remove file extension for the key
-                            file_key = os.path.splitext(file)[0]
-                            
-                            # Initialize image entry if it doesn't exist
-                            if file_key not in image_results:
-                                image_results[file_key] = {}
-                            
-                            # Add model result for this image
-                            image_results[file_key][model] = {
-                                'filename': file,
-                                'path': full_path,
-                                'data': data,
-                                'header': header
-                            }
-                            if display:
-                                print(f"Loaded: {model}/{file} - Shape: {data.shape}")
-                        except Exception as e:
-                            print(f"Error loading {full_path}: {e}")
-            else:
-                print(f"Directory not found: {model_path}")
-        
+            image_names = [image for image in os.listdir(model_path) if image.endswith('.nrrd')]
+
+            for image in image_names:
+                full_path = os.path.join(model_path, image)
+                image_key = image.split('.')[0]
+                data_entry = {
+                    "data": nrrd.read(full_path)[0],
+                    "header": nrrd.read(full_path)[1],
+                    "filename": image,
+                    "path": full_path
+                }
+                if image_key not in image_results:
+                    image_results[image_key] = {}
+                image_results[image_key][model] = data_entry
+
         self.data = image_results
         return image_results
 
@@ -53,41 +43,29 @@ class Data:
         
         Returns: dict[image_name] -> {'filename', 'path', 'data', 'header'}
         """
-        image_results = {}
-        
-        if os.path.exists(root):
-            for file in os.listdir(root):
-                if file.endswith('.nrrd'):
-                    full_path = os.path.join(root, file)
-                    try:
-                        # Load the NRRD file data
-                        data, header = nrrd.read(full_path)
-                        
-                        # Remove file extension for the key
-                        file_key = os.path.splitext(file)[0]
-                        
-                        # Initialize image entry if it doesn't exist
-                        if file_key not in image_results:
-                            image_results[file_key] = {}
-                        
-                        # Add ground truth result for this image
-                        image_results[file_key] = {
-                            'filename': file,
-                            'path': full_path,
-                            'data': data,
-                            'header': header
-                        }
-                        if display:
-                            print(f"Loaded ground truth: {file} - Shape: {data.shape}")
-                    except Exception as e:
-                        print(f"Error loading {full_path}: {e}")
-        else:
-            print(f"Ground truths directory not found: {root}")
-        
-        #self.data.update(image_results)
-        return image_results
+        groundtruths = {}
+        gt_images = os.listdir(root)
+
+        for image in gt_images:
+            img_key = image.split('.')[0]
+            groundtruths[img_key] = {
+                "filename": image,
+                "path": os.path.join(root, image),
+                "data": nrrd.read(os.path.join(root, image))[0],
+                "header": nrrd.read(os.path.join(root, image))[1]
+            }
+
+        self.groundtruths = groundtruths
+        return groundtruths
 
 if __name__ == "__main__":
     c = Data()
-    print(c.load_models().keys())
-    print(c.load_ground_truths().keys())
+
+    uni_pc_path = r"E:"
+    laptop_path = r"/media/joshua/Expansion"    
+    
+    segmentations_path = os.path.join(laptop_path, "HonoursData", "mySegmentations")
+    ground_truths_path = os.path.join(laptop_path, "HonoursData", "GroundTruths")
+
+    print(c.load_models(segmentations_path))
+    print(c.load_ground_truths(ground_truths_path).keys())
