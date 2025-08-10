@@ -67,5 +67,5 @@ if __name__ == "__main__":
     segmentations_path = os.path.join(laptop_path, "HonoursData", "mySegmentations")
     ground_truths_path = os.path.join(laptop_path, "HonoursData", "GroundTruths")
 
-    print(c.load_models(segmentations_path))
-    print(c.load_ground_truths(ground_truths_path).keys())
+    #print(c.load_models(segmentations_path))
+    #print(c.load_ground_truths(ground_truths_path).keys())
