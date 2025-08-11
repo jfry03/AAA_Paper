@@ -46,10 +46,11 @@ results = {mapping(*key): item for key, item in results.items()}
 print("Items where Size does not match")
 for key, val in results.items():
     if val['image'].shape != val['segmentation'].shape:
+        print(f"Image: {val['image'].shape}, Label: {val['segmentation'].shape}")
         print(f"The image/segmentation for {val['path']} do not match")
 
 results = {key: val for key, val in results.items() if val["image"].shape == val["segmentation"].shape}
-
+"""
 # Create sequential ordering from 1 to 43
 original_keys = sorted(results.keys())
 sequential_mapping = {original_key: i + 1 for i, original_key in enumerate(original_keys)}
@@ -58,7 +59,7 @@ sequential_mapping = {original_key: i + 1 for i, original_key in enumerate(origi
 results = {sequential_mapping[key]: item for key, item in results.items()}
 
 all_train = list(range(1, 33))
-"""
+
 for fold in range(4):
     validation_set = all_train[fold * 8:(fold + 1) * 8]
     training_set = [x for x in all_train if x not in validation_set]
@@ -99,7 +100,7 @@ for fold in range(4):
                 nrrd.write(os.path.join(fold_dir, 'labelsTs', seg_filename), results[case_id]['segmentation'])
     
     print(f"Fold {fold}: Training set {len(training_set)} cases, Validation set {len(validation_set)} cases") 
-"""
+
 # Create full training dataset (Dataset008)
 full_train_dir = os.path.join(os.path.dirname(path), "Dataset008_paper_full_train")
 os.makedirs(full_train_dir, exist_ok=True)
@@ -136,3 +137,4 @@ for case_id in out_sample:
             nrrd.write(os.path.join(full_train_dir, 'labelsTs', seg_filename), results[case_id]['segmentation'])
 
 print(f"Full training dataset: {len(all_train)} training cases, {len(out_sample)} test cases")
+"""
